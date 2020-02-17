@@ -1,29 +1,15 @@
-
 from __future__ import print_function
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
-np.random.seed(11) #tao so ngau nhien
 
-class KmeansClustering:
-    def __init__(self, means, cov, n = 500):
-        self.means = means
-        self.cov = cov
-        self.n = n
 
-    def initpoint(self):
-        x = list(range(len(self.means)))
-        label = []
-        for i in list(range(len(self.means))):
-            x[i] = np.random.multivariate_normal(self.means[i], self.cov, self.n)
-            #label = label + [i]*n
-        X = x[0]
-        for i in range(len(x)):
-            if (i == 0): continue
-            X = np.concatenate((X, x[i]), axis = 0)
-        return X
-    
-    
+np.random.seed(11)  # tao so ngau nhien
+
+
+class KMeansClustering:
+    def __init__(self, data, k):
+        self.data = data
+        self.k = k
 
     def kmeans(self):
         # chon k diem bat ky lam center
@@ -33,41 +19,66 @@ class KmeansClustering:
         # tim nhan cho cac diem trong x 
         def kmeans_assign_labels(X, centers):
             D = cdist(X, centers)
-            return np.argmin(D, axis = 1)
-            
+            return np.argmin(D, axis=1)
+
         # tim center moi
         def kmeans_update_centers(X, labels, K):
             centers = np.zeros((K, X.shape[1]))
             for k in range(K):
                 Xk = X[labels == k, :]
-                centers[k, :] = np.mean(Xk, axis = 0)
+                centers[k, :] = np.mean(Xk, axis=0)
             return centers
 
         # kiem tra dieu kien dung
         def has_converged(centers, new_centers):
-            return (set([tuple(a) for a in centers]) == set([tuple(a) for a in new_centers]))
+            return set([tuple(a) for a in centers]) == set([tuple(a) for a in new_centers])
 
-        X = self.initpoint()
-        k = len(self.means)
-        centers = [kmeans_init_centers(X, k)]
+        centers = [kmeans_init_centers(self.data, self.k)]
         labels = []
         it = 0
         while True:
-            labels.append(kmeans_assign_labels(X, centers[-1]))
-            new_centers = kmeans_update_centers(X, labels[-1], k)
+            labels.append(kmeans_assign_labels(self.data, centers[-1]))
+            new_centers = kmeans_update_centers(self.data, labels[-1], self.k)
             if has_converged(new_centers, centers[-1]):
                 break
             centers.append(new_centers)
             it += 1
-        return (centers, labels, it) 
+        return centers, labels, it
 
-                
-means = [[2,2], [8,3], [3,6], [5,5]]
-cov = [[1,0], [0,1]]
-N = 500
-    
-Kmeans = KmeansClustering(means, cov)
 
-(centers, labels, it) = Kmeans.kmeans()
+means = [[2, 2], [8, 3], [3, 6]]
+cov = [[1, 0], [0, 1]]
+n = 500
+
+x = []
+for i in list(range(len(means))):
+    x.append(np.random.multivariate_normal(means[i], cov, n))
+X = x[0]
+for i in range(len(x)):
+    if i == 0:
+        continue
+    X = np.concatenate((X, x[i]), axis=0)
+
+KMeans = KMeansClustering(X, 3)
+
+(centers, labels, it) = KMeans.kmeans()
 print('Centers found by our algorithm:')
-print(centers[-1], it)
+print(centers[-1])
+
+"""
+labels = np.asarray([0]*n + [1]*n + [2]*n).T
+def kmeans_display(X, label):
+    K = 3
+    X0 = X[label == 0, :]
+    X1 = X[label == 1, :]
+    X2 = X[label == 2, :]
+
+    plt.plot(X0[:, 0], X0[:, 1], 'b^', markersize=4, alpha=.8)
+    plt.plot(X1[:, 0], X1[:, 1], 'go', markersize=4, alpha=.8)
+    plt.plot(X2[:, 0], X2[:, 1], 'rs', markersize=4, alpha=.8)
+
+    plt.axis('equal')
+    plt.plot()
+    plt.show()
+
+kmeans_display(X, labels[-1])"""
