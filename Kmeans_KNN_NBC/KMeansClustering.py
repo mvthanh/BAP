@@ -21,6 +21,19 @@ class KMeansClustering:
             D = cdist(X, centers)
             return np.argmin(D, axis=1)
 
+        """
+                Khi su dung khoach cach Euclid              Expected
+                [[2.99084705 6.04196062]                    [3,6]
+                [1.97563391 2.01568065]                     [2,2]
+                [8.03643517 3.02468432]]                    [8,3]
+
+                Voi D = cdist(X, center, 'cosine')          Expected
+                [[2.05259401 5.35465357]                    [3,6]
+                [2.9293566  3.70465521]                     [2,2]
+                [6.71161478 2.54488532]]                    [8,3]
+
+                -> Dung Euclid cho kq chinh xac hon
+                """
         # tim center moi
         def kmeans_update_centers(X, labels, K):
             centers = np.zeros((K, X.shape[1]))
