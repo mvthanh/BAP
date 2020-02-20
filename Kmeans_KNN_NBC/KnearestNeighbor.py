@@ -1,22 +1,26 @@
 from __future__ import print_function
-from sklearn import neighbors, datasets
+import numpy as np
+from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from scipy.spatial.distance import cdist
 
 
 class KNearestNeighbor_Iris:
     def __init__(self):
-        self.model = neighbors.KNeighborsClassifier(n_neighbors=5, p=2)
+        self.data = np.array([])
+        self.label = np.array([])
 
-    def training(self, data, label):
-        self.model.fit(data, label)
+    def fit(self, data, label):
+        self.data = data
+        self.label = label
 
-    def test(self, data):
-        return self.model.predict(data)
-
-    def estimate(self, data, label):
-        pred = self.test(data)
-        print("Accuracy of 5NN: {:.2f} %".format(100 * accuracy_score(label, pred)))
+    def predict(self, data):
+        D = cdist(data, self.data)
+        labels = []
+        for i in range(data.shape[0]):
+            k = np.argmin(D[i])
+            labels.append(self.label[k])
+        return np.array(labels)
 
 
 iris = datasets.load_iris()
@@ -25,8 +29,9 @@ label = iris.target
 
 datatrain, datatest, labeltrain, labeltest = train_test_split(data, label, test_size=130)
 
-KNNIris = KNearestNeighbor_Iris()
-KNNIris.training(datatrain, labeltrain)
-print(KNNIris.test(datatest))
-KNNIris.estimate(datatest, labeltest)
+knn = KNearestNeighbor_Iris()
+knn.fit(datatrain, labeltrain)
+lb = knn.predict(datatest)
+print(lb[:30])
+print(labeltest[:30])
 

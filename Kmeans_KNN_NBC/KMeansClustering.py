@@ -7,11 +7,11 @@ np.random.seed(11)  # tao so ngau nhien
 
 
 class KMeansClustering:
-    def __init__(self, data, k):
-        self.data = data
-        self.k = k
+    def __init__(self):
+        self.centers = []
+        self.labels = []
 
-    def kmeans(self):
+    def kmeans_fit(self, X, k):
         # chon k diem bat ky lam center
         def kmeans_init_centers(X, k):
             return X[np.random.choice(X.shape[0], k, replace=False)]
@@ -46,17 +46,18 @@ class KMeansClustering:
         def has_converged(centers, new_centers):
             return set([tuple(a) for a in centers]) == set([tuple(a) for a in new_centers])
 
-        centers = [kmeans_init_centers(self.data, self.k)]
-        labels = []
+        self.centers = [kmeans_init_centers(X, k)]
         it = 0
         while True:
-            labels.append(kmeans_assign_labels(self.data, centers[-1]))
-            new_centers = kmeans_update_centers(self.data, labels[-1], self.k)
-            if has_converged(new_centers, centers[-1]):
+            self.labels.append(kmeans_assign_labels(X, self.centers[-1]))
+            new_centers = kmeans_update_centers(X, self.labels[-1], k)
+            if has_converged(new_centers, self.centers[-1]):
                 break
-            centers.append(new_centers)
+            self.centers.append(new_centers)
             it += 1
-        return centers, labels, it
+
+    def predict(self):
+        return self.centers, self.labels
 
 
 means = [[2, 2], [8, 3], [3, 6]]
@@ -72,26 +73,9 @@ for i in range(len(x)):
         continue
     X = np.concatenate((X, x[i]), axis=0)
 
-KMeans = KMeansClustering(X, 3)
-
-(centers, labels, it) = KMeans.kmeans()
+KMeans = KMeansClustering()
+KMeans.kmeans_fit(X, 3)
+centers, labels = KMeans.predict()
 print('Centers found by our algorithm:')
 print(centers[-1])
 
-"""
-labels = np.asarray([0]*n + [1]*n + [2]*n).T
-def kmeans_display(X, label):
-    K = 3
-    X0 = X[label == 0, :]
-    X1 = X[label == 1, :]
-    X2 = X[label == 2, :]
-
-    plt.plot(X0[:, 0], X0[:, 1], 'b^', markersize=4, alpha=.8)
-    plt.plot(X1[:, 0], X1[:, 1], 'go', markersize=4, alpha=.8)
-    plt.plot(X2[:, 0], X2[:, 1], 'rs', markersize=4, alpha=.8)
-
-    plt.axis('equal')
-    plt.plot()
-    plt.show()
-
-kmeans_display(X, labels[-1])"""
