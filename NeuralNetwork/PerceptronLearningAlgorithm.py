@@ -21,8 +21,14 @@ class PerceptronLearningAlgorithm:
             w = w + y[random_id] * X[random_id]
         self.w = w
 
-    def predict(self):
-        return self.w
+    def predict(self, data):
+        predict = []
+        for dt in data:
+            out = self.w[0]
+            for i in range(dt.size):
+                out += self.w[i + 1] * dt[i]
+            predict.append(np.sign(out))
+        return predict, self.w
 
 
 means = [[-1, 0], [1, 0]]
@@ -38,10 +44,14 @@ Xbar = np.concatenate((np.ones((2 * N, 1)), X), axis=1)
 
 PLA = PerceptronLearningAlgorithm()
 PLA.fit(Xbar, y)
-w = PLA.predict()
+data = np.array([-1, 0, 0.001, 1, 3, 5, 10, 11]).reshape(-1, 2)
+print(data.shape)
+pred, w = PLA.predict(data)
+print(pred)
 x = np.array([-4, 4])
 y = - w[0]/w[2] - w[1]/w[2]*x
 plt.plot(X0[:, 0], X0[:, 1], 'b^', markersize=4, alpha=.8)
 plt.plot(X1[:, 0], X1[:, 1], 'go', markersize=4, alpha=.8)
+plt.plot(data[:, 0], data[:, 1], 'rs', markersize=4, alpha=.8)
 plt.plot(x, y)
 plt.show()
