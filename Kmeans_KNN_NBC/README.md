@@ -1,1 +1,1 @@
-[Intro.pdf](http://USERNAME.github.io/REPONAME/docs/Intro.pdf).
+[DOC](https://github.com/mvthanh/BAP/blob/master/Kmeans_KNN_NBC/Kmeans_Knearest_NaiveBayes.pdf).
