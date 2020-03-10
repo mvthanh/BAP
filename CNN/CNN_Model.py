@@ -42,7 +42,7 @@ class CNN_Model:
         l = len(input_shape)
         if l == 2:
             input_shape = (input_shape[0], input_shape[1], 1)
-        sum_res = np.zeros((input_shape[0] - filter_size[0] + 1, input_shape[1] - filter_size[1] + 1, input_shape[2]))
+        sum_res = np.zeros((input_shape[0] - filter_size[0] + 1, input_shape[1] - filter_size[1] + 1))
         row = 0
         while (row + filter_size[0]) < input_shape[0]:
             col = 0
@@ -53,10 +53,8 @@ class CNN_Model:
                         a = data[row: row + filter_size[0], col: col + filter_size[1]]
                     else:
                         a = data[row: row + filter_size[0], col: col + filter_size[1], layer]
-                    #a = np.reshape(a, (-1))
                     res = np.multiply(kernel, a)
-                    #print(res.sum())
-                    sum_res[row][col][layer] = res.sum()
+                    sum_res[row][col] += res.sum()
 
                 col += 1
             row += 1
@@ -64,11 +62,19 @@ class CNN_Model:
 
 
 cnn = CNN_Model()
-img = cv2.imread('girl3.jpg', 0)
-cv2.imshow('img2', img)
-print(img.shape)
+img = cv2.imread('girl3.jpg', 0)/255.0
+cv2.imshow('img_origin', img)
+# Canh doc
 kernel = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]])
-img = cnn.conv2d(kernel, img)
+# Canh ngang
+kernel0 = np.array([[-1, -1, -1], [0, 0, 0], [1, 1, 1]])
+# Lay canh
+kernel1 = np.array([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]])
+# Lay net
+kernel2 = np.array([[0, -1, 0], [-1, 5, -1], [-0, -1, -0]])
+# Lam mo
+kernel3 = 1/9*np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]])
+img = cnn.conv2d(kernel0, img)
 
 #img = cnn.maxpooling2d((2, 2), img)
 img = np.array(img)
